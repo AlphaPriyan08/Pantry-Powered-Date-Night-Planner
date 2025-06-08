@@ -43,18 +43,18 @@ prompt_template = ChatPromptTemplate.from_messages(
             10.	Think step-by-step. Don’t be Lazy. Research before Answer.
 
             Present the date night plan in the following format:
-            🍽️ **Recipe Suggestion:** [Dish Name]
-            •	**Ingredients:**
+            🍽️ Recipe Suggestion: [Dish Name]
+            •	Ingredients:
                 - [Ingredient 1]
                 - [Ingredient 2]
-            •	**Preparation Steps:**
+            •	Preparation Steps:
                 1. [First preparation step on its own line]
                 2. [Second preparation step on its own line]
                 3. [Third preparation step on its own line]
 
-            🎶 **Ambiance:** [Music genre or playlist suggestion]
-            🕯️ **Decor:** [Lighting and decor tips]
-            💬 **Icebreaker:** [Conversation starter or activity]
+            🎶 Ambiance: [Music genre or playlist suggestion]
+            🕯️ Decor: [Lighting and decor tips]
+            💬 Icebreaker: [Conversation starter or activity]
 
             REMEMBER: Each preparation step number must start on a new line. Do not group them into a single paragraph.
             
