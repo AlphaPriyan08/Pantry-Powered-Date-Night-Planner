@@ -26,6 +26,16 @@ An interactive, multimodal Streamlit app that turns the ingredients you already 
 
 ---
 
+## 📂 Available Versions
+
+### 1. [Google Gemini API Version (This Repo)](https://github.com/AlphaPriyan08/Pantry-Powered-Date-Night-Planner)
+Runs using the `gemini-1.5-flash` model via Google's Generative AI API. Requires a Google API key.
+
+### 2. [Ollama + Docker Local Version](https://github.com/AlphaPriyan08/Pantry-Powered-Date-Night-Planner-Ollama-Docker)
+Runs entirely on your machine using [Ollama](https://ollama.com/) and Docker. No API keys required. 100% local and private.
+
+---
+
 ## 🛠️ Tech Stack
 
 - **LLM Orchestration:** LangChain Core  
@@ -41,7 +51,7 @@ An interactive, multimodal Streamlit app that turns the ingredients you already 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/<your‑username>/<repo‑name>.git
+git clone https://github.com/AlphaPriyan08/Pantry-Powered-Date-Night-Planner
 cd <repo‑name>
 
 python3 -m venv .venv
@@ -77,7 +87,7 @@ streamlit run app.py
 
 Open your browser to <http://localhost:8501> and follow the prompt:
 
-> 🔯 **AI:** “Hello! What ingredients do you have? Upload photos, text files, or PDFs!”
+> 🕯️ **AI:** “Hello! What ingredients do you have? Upload photos, text files, or PDFs!”
 
 ---
 
@@ -92,7 +102,7 @@ Open your browser to <http://localhost:8501> and follow the prompt:
 
 - **`app.py`**  
   - Initializes Streamlit session state, chat history, and LLM chain.  
-  - Renders chat UI with “AI” 🔯 and “Human” 👤 messages.  
+  - Renders chat UI with “AI” 🕯️ and “Human” 👤 messages.  
   - Handles user uploads, processes files, and iteratively refines the date‑night plan.
 
 - **`file_processor.py`**  
