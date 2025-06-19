@@ -3,3 +3,6 @@ langchain
 langchain-core
 langchain-google-genai
 python-dotenv
+pypdf         # For handling PDF files
+Pillow        # For image manipulation
+pytesseract   # Python wrapper for Google's Tesseract-OCR Engine
