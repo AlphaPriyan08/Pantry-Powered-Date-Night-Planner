@@ -1,23 +1,28 @@
-# file_processor.py
-
 import io
 import pypdf
-from PIL import Image
-from typing import List, Tuple, Dict, Any
+import base64 
+from typing import List, Tuple, Dict, Any, Optional
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-def process_uploaded_files(uploaded_files: List[UploadedFile]) -> Tuple[str, List[Dict[str, Any]]]:
+MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024 
+
+def process_uploaded_files(
+    uploaded_files: List[UploadedFile], 
+    st_object: Optional[Any] = None
+) -> Tuple[str, List[Dict[str, Any]]]:
     """
-    Processes a list of uploaded files, separating them into extracted text and image data.
+    Processes a list of uploaded files, separating them into extracted text and 
+    Base64-encoded image data conforming to the LangChain schema.
 
     Args:
         uploaded_files: A list of files from Streamlit's file_uploader.
+        st_object: The Streamlit module object, passed in to display warnings.
 
     Returns:
         A tuple containing:
         - A single string of all extracted text from TXT and PDF files.
         - A list of dictionaries, where each dictionary represents an image
-          prepared for a multimodal LLM.
+          prepared for a multimodal LLM in the correct format.
     """
     extracted_text = ""
     image_parts = []
@@ -25,30 +30,46 @@ def process_uploaded_files(uploaded_files: List[UploadedFile]) -> Tuple[str, Lis
     if not uploaded_files:
         return extracted_text, image_parts
 
-    # Sort files to process text-based ones first, which can provide context
-    uploaded_files.sort(key=lambda f: f.name.split('.')[-1].lower() not in ['txt', 'pdf'])
-
     for file in uploaded_files:
+        if file.size > MAX_FILE_SIZE_BYTES:
+            if st_object:
+                st_object.warning(f"Skipped {file.name}: File is larger than the {MAX_FILE_SIZE_BYTES/1024/1024:.0f}MB limit.")
+            continue
+
         file_extension = file.name.split('.')[-1].lower()
         file_bytes = file.getvalue()
 
         if file_extension == "txt":
-            extracted_text += f"--- Content from {file.name} ---\n{file_bytes.decode('utf-8')}\n\n"
+            try:
+                extracted_text += f"--- Content from {file.name} ---\n{file_bytes.decode('utf-8')}\n\n"
+            except UnicodeDecodeError:
+                if st_object:
+                    st_object.warning(f"Could not decode {file.name} as text. It might be a binary file.")
         
         elif file_extension == "pdf":
             try:
                 reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-                pdf_text = "".join(page.extract_text() for page in reader.pages)
-                extracted_text += f"--- Content from {file.name} ---\n{pdf_text}\n\n"
+                pdf_text = "".join(page.extract_text() for page in reader.pages if page.extract_text())
+                if pdf_text:
+                    extracted_text += f"--- Content from {file.name} ---\n{pdf_text}\n\n"
+                else:
+                    if st_object:
+                        st_object.warning(f"Could not extract any text from {file.name}. It may be an image-based PDF.")
             except Exception as e:
-                extracted_text += f"--- Could not read PDF {file.name}: {e} ---\n\n"
+                if st_object:
+                    st_object.error(f"Failed to read PDF {file.name}: {e}")
 
         elif file_extension in ["png", "jpg", "jpeg"]:
-            # This is the robust way to prepare image data for Gemini.
-            # We provide the raw bytes and the correct MIME type.
+
+            # 1. Encode the image bytes to a Base64 string.
+            base64_image = base64.b64encode(file_bytes).decode("utf-8")
+            
+            # 2. Create the dictionary in the correct format that LangChain expects.
             image_parts.append({
-                "mime_type": file.type,
-                "data": file_bytes
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:{file.type};base64,{base64_image}"
+                }
             })
 
     return extracted_text, image_parts
